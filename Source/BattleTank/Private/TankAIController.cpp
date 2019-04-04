@@ -1,7 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "TankAIController.h"
-#include "Tank.h"
+
+#include "Engine/World.h"
+#include "TankAimingComponent.h"
 
 void ATankAIController::BeginPlay()
 {
@@ -13,30 +15,17 @@ void ATankAIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	auto PlayerTank = Cast<ATank>(GetWorld()->GetFirstPlayerController()->GetPawn());
-	auto ControlledTank = Cast<ATank>(GetPawn());
-	if (ensure(PlayerTank))
-	{
-		//Move towards the player
-		MoveToActor(PlayerTank, AcceptanceRadius); //TODO check radius is in cm or m
-
-		// Aim towards the player
-		ControlledTank->AimAt(PlayerTank->GetActorLocation());
+	auto PlayerTank =GetWorld()->GetFirstPlayerController()->GetPawn();
+	auto ControlledTank = GetPawn();
 	
-		// Fire if ready
-		ControlledTank->Fire();//TODO lingt firing rate
-	}
-}
+	if (!ensure(PlayerTank&&ControlledTank)) { return; }
+	
+	//Move towards the player
+	MoveToActor(PlayerTank, AcceptanceRadius); //TODO check radius is in cm or m
 
-//ATank* ATankAIController::GetControlledTank() const
-//{
-//	return Cast<ATank>(GetPawn());
-//}
-//
-//ATank* ATankAIController::GetPlayerTank() const
-//{
-//	auto PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
-//	if (!PlayerPawn) { return nullptr; } // Note the !, very important
-//	return Cast<ATank>(PlayerPawn);
-//}
-//have already made these inline
+	// Aim towards the player
+	auto AimingComponent = ControlledTank->FindComponentByClass<UTankAimingComponent>();
+	AimingComponent->AimAt(PlayerTank->GetActorLocation());
+	
+	AimingComponent->Fire();//TODO lingt firing rate
+}

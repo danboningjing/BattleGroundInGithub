@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameFramework/ProjectileMovementComponent.h"
+
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Projectile.generated.h"
